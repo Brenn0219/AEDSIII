@@ -195,80 +195,65 @@ public class Crud {
     public void deleteFile() throws IOException { deleteFIle(file); }
 
     public void sort() throws Exception {
-        File fileTempOne = new File("temp1"), fileTempTwo = new File("temp2"), fileTempThree = new File("temp3"), fileTempFour = new File("temp4");
-        RandomAccessFile firstTempFile = new RandomAccessFile(fileTempOne, "rw"), secondTempFile = new RandomAccessFile(fileTempTwo, "rw"), thirdTempFile = new RandomAccessFile(fileTempThree, "rw"), fourthTempFile = new RandomAccessFile(fileTempFour, "rw");
+        File temp1 = new File("temp1"), temp2 = new File("temp2"), tem3 = new File("temp3"), tem4 = new File("temp4");
+        RandomAccessFile firstTempFile = new RandomAccessFile(temp1, "rw");
+        RandomAccessFile secondTempFile = new RandomAccessFile(temp2, "rw");
+        RandomAccessFile thirdTempFile = new RandomAccessFile(tem3, "rw");
+        RandomAccessFile fourthTempFile = new RandomAccessFile(tem4, "rw");
+        
+        // ESTAPA 1 -> DISTRIBUIÇÃO
+        readFile.seek(0);
+        readFile.skipBytes(4);
+        long position = readFile.getFilePointer();
 
-        writeBlocks(readFile, firstTempFile, secondTempFile, size);
+        while(position < readFile.length()) {
+            position = writeFile(firstTempFile, readFile, size);
 
-        firstTempFile.seek(0);
-        secondTempFile.seek(0);
-        firstTempFile.skipBytes(4);
-        secondTempFile.skipBytes(4);
-       
-        while(true) {
-            if(firstTempFile.getFilePointer() < firstTempFile.length() && secondTempFile.getFilePointer() < secondTempFile.length()) {
-                if(firstTempFile.getFilePointer() < firstTempFile.length() || secondTempFile.getFilePointer() < secondTempFile.length()) {
-                    intercalation(thirdTempFile, firstTempFile, secondTempFile, size);
-                }
-
-                if(firstTempFile.getFilePointer() < firstTempFile.length() || secondTempFile.getFilePointer() < secondTempFile.length()) {
-                    intercalation(fourthTempFile, firstTempFile, secondTempFile, size);
-                }
-            } else {
-                break;
+            if(position < readFile.length()) {
+                position = writeFile(secondTempFile, readFile, size);
             }
+        }   
+
+        // ETAPA 2 -> PRIMEIRA INTERCALACAO
+        firstTempFile.seek(0);
+        firstTempFile.skipBytes(4);
+        secondTempFile.seek(0);
+        secondTempFile.skipBytes(4);
+
+        while(true) {
+            if(firstTempFile.getFilePointer() >= firstTempFile.length() && secondTempFile.getFilePointer() >= secondTempFile.length()) { break; }
+            intercalation(thirdTempFile, firstTempFile, secondTempFile, size);
+
+            if(firstTempFile.getFilePointer() >= firstTempFile.length() && secondTempFile.getFilePointer() >= secondTempFile.length()) { break; }
+            intercalation(fourthTempFile, firstTempFile, secondTempFile, size);
         }
-
-        deleteFIle(fileTempOne);
-        deleteFIle(fileTempTwo);
-
+        
+        // ETAPA 3 -> SEGUNDA INTERCALACAO
+        firstTempFile.setLength(0);
+        secondTempFile.setLength(0);
         thirdTempFile.seek(0);
-        fourthTempFile.seek(0);
         thirdTempFile.skipBytes(4);
+        fourthTempFile.seek(0);
         fourthTempFile.skipBytes(4);
 
         while(true) {
-            if(thirdTempFile.getFilePointer() < thirdTempFile.length() && fourthTempFile.getFilePointer() < fourthTempFile.length()) {
-                if(thirdTempFile.getFilePointer() < thirdTempFile.length() || fourthTempFile.getFilePointer() < fourthTempFile.length()) {
-                    intercalation(firstTempFile, thirdTempFile, fourthTempFile, size*2);
-                }
+            if(thirdTempFile.getFilePointer() >= thirdTempFile.length() && fourthTempFile.getFilePointer() >= fourthTempFile.length()) { break; }
+            intercalation(firstTempFile, thirdTempFile, fourthTempFile, size*2);
 
-                if(thirdTempFile.getFilePointer() < thirdTempFile.length() || fourthTempFile.getFilePointer() < fourthTempFile.length()) {
-                    intercalation(fourthTempFile, secondTempFile, fourthTempFile, size*2);
-                }
-            } else {
-                break;
-            }
+            if(thirdTempFile.getFilePointer() >= thirdTempFile.length() && fourthTempFile.getFilePointer() >= fourthTempFile.length()) { break; }
+            intercalation(secondTempFile, thirdTempFile, fourthTempFile, size*2);
         }
 
-        File fileTempSeis = new File("temp6"), fileTempSete = new File("temp7");
-        RandomAccessFile sextoTempFile = new RandomAccessFile(fileTempSeis, "rw"), seteTempFile = new RandomAccessFile(fileTempSete, "rw");
+        show(firstTempFile);
+        show(secondTempFile);
 
-        while(true) {
-            if(thirdTempFile.getFilePointer() < thirdTempFile.length() && fourthTempFile.getFilePointer() < fourthTempFile.length()) {
-                if(thirdTempFile.getFilePointer() < thirdTempFile.length() || fourthTempFile.getFilePointer() < fourthTempFile.length()) {
-                    intercalation(sextoTempFile, thirdTempFile, fourthTempFile, size*2);
-                }
-
-                if(thirdTempFile.getFilePointer() < thirdTempFile.length() || fourthTempFile.getFilePointer() < fourthTempFile.length()) {
-                    intercalation(seteTempFile, secondTempFile, fourthTempFile, size*2);
-                }
-            } else {
-                break;
-            }
-        }
-
-        readFile.seek(0);
-        readFile.skipBytes(4);
-        intercalation(readFile, sextoTempFile, seteTempFile);
-
-        show(readFile);
-
-        deleteFIle(fileTempOne);
-        deleteFIle(fileTempTwo);
-        deleteFIle(fileTempThree);
-        deleteFIle(fileTempFour);
+        deleteFIle(temp1);
+        deleteFIle(temp2);
+        deleteFIle(tem3);
+        deleteFIle(tem4);
     }
+
+
 
     private void create(RandomAccessFile file, Games game) throws Exception {
         file.seek(0);
@@ -379,41 +364,31 @@ public class Crud {
         return file.getFilePointer();
     }
 
-    // Escrev Blocos de Registros intercalando em dois Arquivos
-    private void writeBlocks(RandomAccessFile file, RandomAccessFile firstFile, RandomAccessFile secondFile, int sizeRegister) throws Exception {    
-        file.seek(0);
-        file.skipBytes(4);
-        long position = file.getFilePointer();
+    private long writeFile(RandomAccessFile file, RandomAccessFile readToFile, int totalRegister) throws IOException, Exception {
+        Games[] games = new Games[totalRegister];
 
-        while(position < file.length()) {
-            if(position < file.length()) {
-                position = writeFile(firstFile, file, sizeRegister);
-            }
-
-            if(position < file.length()) {
-                position = writeFile(secondFile, file, sizeRegister);
+        int i = 0;
+        for(; i < totalRegister; i++) {
+            if(readToFile.getFilePointer() < readToFile.length()) {
+                games[i] = readBytesForGames(readToFile, readToFile.getFilePointer());
+            } else {
+                break;
             }
         }
-    }
 
-    private long writeFile(RandomAccessFile file, RandomAccessFile fileToRead, int sizeRegister) throws Exception {
-        file.seek(0);   
-        Games[] games = new Games[sizeRegister];
+        quickSort(games, 0, i-1);
 
-        for(int i = 0; i < sizeRegister; i++) {
-            games[i] = readBytesForGames(fileToRead, fileToRead.getFilePointer());
+        for(int j = 0; j < totalRegister; j++) {
+            if(games[j] != null) {
+                create(file, games[j]);
+            } else {
+                break;
+            }
         }
 
-        quickSort(games, 0, sizeRegister-1);
-
-        for(int i = 0; i < sizeRegister; i++) {
-            create(file, games[i]);
-        }
-
-        return fileToRead.getFilePointer();
+        return readToFile.getFilePointer();
     }
 
-    // Ordenacao dos Blocos de Registros depois de transformados em Games
     private void quickSort(Games[] games, int left, int right) {
         int i = left, j = right;
         Games pivo = games[(left + right) / 2];
@@ -436,116 +411,69 @@ public class Crud {
         if(i < right) quickSort(games, i, right);
     }
 
-    private void intercalation(RandomAccessFile file, RandomAccessFile firstFile, RandomAccessFile secondFile, int sizeRegister) throws Exception {
+    private void intercalation(RandomAccessFile fileWrite, RandomAccessFile firstReadFile, RandomAccessFile secondReadFile, int sizeRegitser) throws Exception {
         int counterFirstFile = 0, counterSecondFile = 0;
         long positionFirstFile = -1, positionSecondFile = -1;
-        Games gamesFirstFile = null, gamesSecondFile = null;
+        Games gameFirstFile = null, gamesSecondFile = null;
 
-        // int contador = 0;
+        int c = 0;
+        //System.out.println("ARQ1 -> POSICAO INICIO: " + firstReadFile.getFilePointer() + " POSICAO FINAL: " + firstReadFile.length());
 
-        while(counterFirstFile < sizeRegister || counterSecondFile < sizeRegister) {
-            // System.out.println(contador+1 + " LAÇO");
-            if(firstFile.getFilePointer() < firstFile.length() && secondFile.getFilePointer() < secondFile.length()) {
-                if(firstFile.getFilePointer() < firstFile.length()) {
-                    if(counterFirstFile < sizeRegister) {
-                        positionFirstFile = firstFile.getFilePointer();
-                        gamesFirstFile = readBytesForGames(firstFile, positionFirstFile);
-                        // System.out.println("PRIMEIRO ARQUIVO");
-                        // System.out.println("ID: " + gamesFirstFile.getApp_id());
-                    }
+        // System.out.println("ARQ2 -> POSICAO INICIO: " + secondReadFile.getFilePointer() + " POSICAO FINAL: " + secondReadFile.length());
+        while(true) {
+            if(counterFirstFile >= sizeRegitser && counterSecondFile >= sizeRegitser) { break;  }
+            else if (firstReadFile.getFilePointer() >= firstReadFile.length() && secondReadFile.getFilePointer() >= secondReadFile.length()) { break; }
+
+            if(firstReadFile.getFilePointer() < firstReadFile.length()) {
+                if(counterFirstFile < sizeRegitser) {
+                positionFirstFile = firstReadFile.getFilePointer();
+                    gameFirstFile = readBytesForGames(firstReadFile, positionFirstFile);
+                    //System.out.println("ARQ1 -> POSICAO GAMES: " + firstReadFile.getFilePointer() + " POSICAO FINAL: " + firstReadFile.length());
                 }
+            }
 
-                if(secondFile.getFilePointer() < secondFile.length()) {
-                    if(counterSecondFile < sizeRegister) {
-                        positionSecondFile = secondFile.getFilePointer();
-                        gamesSecondFile = readBytesForGames(secondFile, positionSecondFile);
-                        // System.out.println("SEGUNDO ARQUIVO");
-                        // System.out.println("ID: " + gamesSecondFile.getApp_id());
-                    }
+            if(secondReadFile.getFilePointer() < secondReadFile.length()) {
+                if(counterSecondFile < sizeRegitser) {
+                positionSecondFile = secondReadFile.getFilePointer();
+                    gamesSecondFile = readBytesForGames(secondReadFile, positionSecondFile);
+                    // System.out.println("ARQ2 -> POSICAO GAMES: " + secondReadFile.getFilePointer() + " POSICAO FINAL: " + secondReadFile.length());
                 }
-                // System.out.println();
-                if(gamesFirstFile != null && gamesSecondFile != null) {
-                    if(gamesFirstFile.getApp_id() < gamesSecondFile.getApp_id()) {
-                        create(file, gamesFirstFile);
-                        counterFirstFile++;
-                        secondFile.seek(positionSecondFile);
-                        // System.out.println("GAME1 - ID: " + gamesFirstFile.getApp_id());
-                        // System.out.println("Contador Arquivo 1: " + counterFirstFile);
-                    } else {
-                        create(file, gamesSecondFile);
-                        counterSecondFile++;
-                        firstFile.seek(positionFirstFile);
-                        // System.out.println("GAME2 - ID: " + gamesSecondFile.getApp_id());
-                        // System.out.println("Contador Arquivo 2: " + counterSecondFile);
-                    }
-                    // System.out.println();
-                } else if (gamesFirstFile == null) {
-                    create(file, gamesSecondFile);
-                    counterSecondFile++;
-                    firstFile.seek(positionFirstFile);
-                } else {
-                    create(file, gamesFirstFile);
+            }
+
+            if(gameFirstFile != null && gamesSecondFile != null) {
+                if(gameFirstFile.getApp_id() < gamesSecondFile.getApp_id()) {
+                    create(fileWrite, gameFirstFile);
                     counterFirstFile++;
-                    secondFile.seek(positionSecondFile);
-                }
-            } else {
-                // System.out.println("BREAK");
-                break;
-            }
-
-            gamesFirstFile = null;
-            gamesSecondFile = null;
-            // contador++;
-        }
-    }
-
-    private void intercalation(RandomAccessFile file, RandomAccessFile firstFile, RandomAccessFile secondFile) throws Exception {
-        long positionFirstFile = -1, positionSecondFile = -1;
-        Games gamesFirstFile = null, gamesSecondFile = null;
-
-        // int contador = 0;
-
-        while(firstFile.getFilePointer() < firstFile.length() || secondFile.getFilePointer() < secondFile.length()) {
-            // System.out.println(contador+1 + " LAÇO");
-            if(firstFile.getFilePointer() < firstFile.length() && secondFile.getFilePointer() < secondFile.length()) {
-                if(firstFile.getFilePointer() < firstFile.length()) {
-                    positionFirstFile = firstFile.getFilePointer();
-                    gamesFirstFile = readBytesForGames(firstFile, positionFirstFile);
-                }
-
-                if(secondFile.getFilePointer() < secondFile.length()) {
-                    positionSecondFile = secondFile.getFilePointer();
-                    gamesSecondFile = readBytesForGames(secondFile, positionSecondFile);
-                }
-                // System.out.println();
-                if(gamesFirstFile != null && gamesSecondFile != null) {
-                    if(gamesFirstFile.getApp_id() < gamesSecondFile.getApp_id()) {
-                        writeGameToByte(file, file.getFilePointer(), gamesFirstFile);
-                        secondFile.seek(positionSecondFile);
-                        // System.out.println("GAME1 - ID: " + gamesFirstFile.getApp_id());
-                        // System.out.println("Contador Arquivo 1: " + counterFirstFile);
-                    } else {
-                        writeGameToByte(file, file.getFilePointer(), gamesSecondFile);
-                        firstFile.seek(positionFirstFile);
-                        // System.out.println("GAME2 - ID: " + gamesSecondFile.getApp_id());
-                        // System.out.println("Contador Arquivo 2: " + counterSecondFile);
+                    if(counterSecondFile < sizeRegitser) {
+                        if(positionSecondFile != -1) { secondReadFile.seek(positionSecondFile); }
                     }
-                    // System.out.println();
-                } else if (gamesFirstFile == null) {
-                    writeGameToByte(file, file.getFilePointer(), gamesFirstFile);
-                    firstFile.seek(positionFirstFile);
+                    //System.out.println("ARQ1 -> POSICAO ESCREVENDO 1: " + firstReadFile.getFilePointer() + " POSICAO FINAL: " + firstReadFile.length());
                 } else {
-                    writeGameToByte(file, file.getFilePointer(), gamesSecondFile);
-                    secondFile.seek(positionSecondFile);
+                    create(fileWrite, gamesSecondFile);
+                    counterSecondFile++;
+                    if(counterFirstFile < sizeRegitser) {
+                        if(positionFirstFile != -1) { firstReadFile.seek(positionFirstFile); }
+                    }
+                    // System.out.println("ARQ2 -> POSICAO ESCREVENDO 1: " + secondReadFile.getFilePointer() + " POSICAO FINAL: " + secondReadFile.length());
                 }
+            } else if (gameFirstFile == null) {
+                create(fileWrite, gamesSecondFile);
+                counterSecondFile++;
+                if(counterFirstFile < sizeRegitser) {
+                    if(positionFirstFile != -1) { firstReadFile.seek(positionFirstFile); }
+                }
+                // System.out.println("ARQ2 -> POSICAO ESCREVENDO 2: " + secondReadFile.getFilePointer() + " POSICAO FINAL: " + secondReadFile.length());
             } else {
-                // System.out.println("BREAK");
-                break;
+                create(fileWrite, gameFirstFile);
+                counterFirstFile++;
+                if(counterSecondFile < sizeRegitser) {
+                    if(positionSecondFile != -1) { secondReadFile.seek(positionSecondFile); }
+                }
+                // System.out.println("ARQ1 -> POSICAO ESCREVENDO 2: " + firstReadFile.getFilePointer() + " POSICAO FINAL: " + firstReadFile.length());
             }
 
-            gamesFirstFile = null;
+            gameFirstFile = null;
             gamesSecondFile = null;
-            // contador++;
         }
     }
 }

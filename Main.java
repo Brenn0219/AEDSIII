@@ -11,8 +11,8 @@ public class Main {
         while(sc.hasNext()) {
             game.toRead(sc.nextLine()); 
             readFile.create(game);
+            // game.show();
         }
-
         // Games gameCrud = readFile.select(440);
         
 		// if(gameCrud != null) {
@@ -26,7 +26,6 @@ public class Main {
 		// readFile.show();
 
         readFile.sort();
-
 
         readFile.deleteFile();
         sc.close();
