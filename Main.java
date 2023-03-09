@@ -4,15 +4,15 @@ import java.util.Scanner;
 public class Main {
     
     public static void main(String[] args) throws Exception {
-        Scanner sc = new Scanner(new File("teste.csv"));
+        Scanner sc = new Scanner(new File("games.csv"));
         Games game = new Games();
         Crud readFile = new Crud("arquivo");
 
         while(sc.hasNext()) {
             game.toRead(sc.nextLine()); 
-            readFile.create(game);
+            readFile.create(game);                                                  
+            // game.show();
         }
-
         // Games gameCrud = readFile.select(440);
         
 		// if(gameCrud != null) {
@@ -26,6 +26,7 @@ public class Main {
 		// readFile.show();
 
         readFile.sort();
+        readFile.show();
 
         readFile.deleteFile();
         sc.close();
