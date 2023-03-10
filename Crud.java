@@ -160,7 +160,6 @@ public class Crud {
                 System.out.print("(" + readFile.readInt() + ")" + readFile.readUTF() + " ");
             }
             System.out.println();
-            System.out.println();
         }
     }
 
@@ -187,7 +186,6 @@ public class Crud {
             for(int i = 0; i < n; i++) {
                 System.out.print("(" + file.readInt() + ")" + file.readUTF() + " ");
             }
-            System.out.println();
             System.out.println();
         }
     }
@@ -257,6 +255,39 @@ public class Crud {
             if(firstTempFile.getFilePointer() >= firstTempFile.length() && secondTempFile.getFilePointer() >= secondTempFile.length()) { break; }
             intercalation(readFile, firstTempFile, secondTempFile, size*n); 
         }
+
+        deleteFIle(temp1);
+        deleteFIle(temp2);
+        deleteFIle(tem3);
+        deleteFIle(tem4);
+    }
+
+    public void flexibleOrdering() throws IOException, Exception {
+        File temp1 = new File("temp1"), temp2 = new File("temp2"), tem3 = new File("temp3"), tem4 = new File("temp4");
+        RandomAccessFile firstTempFile = new RandomAccessFile(temp1, "rw");
+        RandomAccessFile secondTempFile = new RandomAccessFile(temp2, "rw");
+        RandomAccessFile thirdTempFile = new RandomAccessFile(tem3, "rw");
+        RandomAccessFile fourthTempFile = new RandomAccessFile(tem4, "rw");
+        
+        // ESTAPA 1 -> DISTRIBUIÇÃO
+        readFile.seek(0);
+        readFile.skipBytes(4);
+        long position = readFile.getFilePointer();
+
+        while(position < readFile.length()) {
+            position = writeFile(firstTempFile, readFile, size);
+
+            if(position < readFile.length()) {
+                position = writeFile(secondTempFile, readFile, size);
+            }
+        }   
+
+        // ETAPA 2 -> PRIMEIRA INTERCALACAO
+        firstTempFile.seek(0);
+        firstTempFile.skipBytes(4);
+        secondTempFile.seek(0);
+        secondTempFile.skipBytes(4);
+
 
         deleteFIle(temp1);
         deleteFIle(temp2);

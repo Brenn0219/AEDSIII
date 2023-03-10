@@ -11,8 +11,11 @@ public class Main {
         while(sc.hasNext()) {
             game.toRead(sc.nextLine()); 
             readFile.create(game);                                                  
-            // game.show();
         }
+
+        // readFile.sort();
+        readFile.flexibleOrdering();
+
         // Games gameCrud = readFile.select(440);
         
 		// if(gameCrud != null) {
@@ -21,12 +24,10 @@ public class Main {
 
         // gameCrud.setName("Counter-Strike Nexon: Studio Deathmatch Classic A Story About My Uncle");
         // readFile.update(gameCrud);
-        // gameCrud.show();
+
+        // readFile.delete(30);
 
 		// readFile.show();
-
-        readFile.sort();
-        readFile.show();
 
         readFile.deleteFile();
         sc.close();
