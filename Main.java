@@ -4,9 +4,9 @@ import java.util.Scanner;
 public class Main {
     
     public static void main(String[] args) throws Exception {
-        Scanner sc = new Scanner(new File("teste.csv"));
+        Scanner sc = new Scanner(new File("games.csv"));
         Games game = new Games();
-        Crud readFile = new Crud("arquivo");
+        DataBase readFile = new DataBase("arquivo");
 
         while(sc.hasNext()) {
             game.toRead(sc.nextLine()); 
