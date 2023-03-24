@@ -33,6 +33,8 @@ public class Main {
         // Heap heap = new Heap(readFile.getFile());
         // heap.sort();            
 
+        FileSorting.sort(readFile.getFile());
+
         readFile.deleteFile();
         sc.close();
     }

@@ -22,7 +22,7 @@ public class DataBase {
         create(readFile, game);
     }
 
-    private void create(RandomAccessFile file, Games game) throws Exception {
+    public static void create(RandomAccessFile file, Games game) throws Exception {
         file.seek(0);
         file.writeInt(game.getApp_id());
 
@@ -176,7 +176,7 @@ public class DataBase {
         }
     }
 
-    public void show(RandomAccessFile file) throws Exception {
+    public static void show(RandomAccessFile file) throws Exception {
         int n;
         file.seek(0);
        
