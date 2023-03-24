@@ -4,7 +4,7 @@ import java.util.Scanner;
 public class Main {
     
     public static void main(String[] args) throws Exception {
-        Scanner sc = new Scanner(new File("games.csv"));
+        Scanner sc = new Scanner(new File("teste.csv"));
         Games game = new Games();
         DataBase readFile = new DataBase("arquivo");
 
@@ -13,7 +13,7 @@ public class Main {
             readFile.create(game);                                                  
             // game.show();
         }
-        // Games gameCrud = readFile.select(440);
+        // Games gameCrud = readFile.read(440);
         
 		// if(gameCrud != null) {
         //     gameCrud.show();
@@ -28,7 +28,10 @@ public class Main {
         // readFile.sort();
         // readFile.show();
 
-        readFile.flexibleOrdering();
+        // readFile.flexibleOrdering();
+
+        // Heap heap = new Heap(readFile.getFile());
+        // heap.sort();            
 
         readFile.deleteFile();
         sc.close();

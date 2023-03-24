@@ -1,3 +1,5 @@
+//-----------------------------------------------------
+//Dependencias
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -7,7 +9,7 @@ public class DataBase {
     private File file;
     private RandomAccessFile readFile;
     private int size;
-
+    
     DataBase(String fileName) throws Exception {
         name = fileName;
         file = new File(name);
@@ -15,12 +17,22 @@ public class DataBase {
         readFile.seek(0);
         size = 200;
     }
-
+    
     public void create(Games game) throws Exception {
         create(readFile, game);
     }
 
-    public Games select(int x) throws Exception {
+    private void create(RandomAccessFile file, Games game) throws Exception {
+        file.seek(0);
+        file.writeInt(game.getApp_id());
+
+        file.seek(file.length());
+        byte[] bytes = game.toByteArray(); 
+        file.writeInt(bytes.length); 
+        file.write(bytes); 
+    }
+
+    public Games read(int x) throws Exception {
         int registerSize, id;
         boolean fileValue;
         long position;
@@ -194,13 +206,20 @@ public class DataBase {
 
     public void deleteFile() throws IOException { deleteFIle(file); }
 
+    public RandomAccessFile getFile() { return readFile; }
+
     public void sort() throws Exception {
+        sort(size);
+    }
+
+    public void sort(int x) throws Exception {
         File temp1 = new File("temp1"), temp2 = new File("temp2"), tem3 = new File("temp3"), tem4 = new File("temp4");
         RandomAccessFile firstTempFile = new RandomAccessFile(temp1, "rw");
         RandomAccessFile secondTempFile = new RandomAccessFile(temp2, "rw");
         RandomAccessFile thirdTempFile = new RandomAccessFile(tem3, "rw");
         RandomAccessFile fourthTempFile = new RandomAccessFile(tem4, "rw");
-        
+        size = x;
+
         // ESTAPA 1 -> DISTRIBUIÇÃO
         readFile.seek(0);
         readFile.skipBytes(4);
@@ -320,19 +339,9 @@ public class DataBase {
         deleteFIle(tem4);
     }
 
-    private void create(RandomAccessFile file, Games game) throws Exception {
-        file.seek(0);
-        file.writeInt(game.getApp_id());
-
-        file.seek(file.length());
-        byte[] bytes = game.toByteArray(); 
-        file.writeInt(bytes.length); 
-        file.write(bytes); 
-    }
-
     private boolean deleteFIle(File file) { return file.delete(); }
 
-    private Games readBytesForGames(RandomAccessFile file, long position) throws Exception {
+    public static Games readBytesForGames(RandomAccessFile file, long position) throws Exception {
         file.seek(position);
         Games game = new Games();
         file.readInt();
