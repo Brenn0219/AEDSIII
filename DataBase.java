@@ -200,7 +200,6 @@ public class DataBase {
                 System.out.print("(" + file.readInt() + ")" + file.readUTF() + " ");
             }
             System.out.println();
-            System.out.println();
         }
     }
 
