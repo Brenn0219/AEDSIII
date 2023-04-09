@@ -39,83 +39,73 @@ public class TreeB {
                 fragment(page, key, fatherPage);
             }
         } else {
-            long teste = searchPage(page, key);
-            insertKey(key, teste);
+            // System.out.println("==== SEACRH ====");
+            // long teste = searchPage(page, key);
+            // System.out.println("Position da Pagina: " + fatherPage + " Position da Pagina Selecionada: " + teste + " Chaves: " + page.getTotalKeysInPage());
+            // insertKey(key, teste);
+            
+            fatherPage = searchPage(page, key);
+            insertKey(key, fatherPage);
         }
     }
    
     private void fragment(Page page, Key key, long pos) throws IOException {
         Page fatherPage = new Page(order), rightSisterPage = new Page(order);
         Key keyProvided;
-        int n = (order-1) / 2; // calculo para a posicao da chave promovida
+        int n = (order-1) / 2, oldQuantity = page.getTotalKeysInPage(); // calculo para a posicao da chave promovida
 
-        // Se a raiz que for fragmentada pela Primeira 
-        if(page.getFatherPage() == -1 && page.getTotalKeysInPage() == order-1) {
-            keyProvided = page.getKeys()[n]; // chave promovida
+        // chave promovida
+        keyProvided = page.getKeys()[n];
 
-            // inserindo as chaves que sobraram na pagina irma (right page)
-            for(int i = n+1; i < order-1; i++) { rightSisterPage.addKey(page.getKeys()[i]); }
-            
-            // atualizando a o total de chaves na pagina fragmentada (n)
-            page.setTotalKeysInPage(n);
+        // inserindo as chaves que sobraram na pagina irma (right page)
+        for(int i = n+1; i < order-1; i++) { rightSisterPage.addKey(page.getKeys()[i]); }
+        
+        // atualizando a o total de chaves na pagina fragmentada (n)
+        page.setTotalKeysInPage(n);
 
-            // Verificando em qual pagina a nova chave ira ser inserida
-            if(key.getId() < keyProvided.getId()) {
-                page.addKey(key);
-            } else {
-                rightSisterPage.addKey(key);
-            }
-
-            // Atualizando as Informacoes da Pagina Fragmentada e escrevendo no arquivo
-            page.setFatherPage(fatherPage.getPositionIndexedFile());
+        // Verificando em qual pagina a nova chave ira ser inserida
+        if(key.getId() < keyProvided.getId()) {
+            page.addKey(key);
+        } else {
+            rightSisterPage.addKey(key);
+        }
+        
+        // Fragmentacao na Raiz
+        if(page.getFatherPage() == -1 && oldQuantity == order-1) {
+            // Atualizando o Ponteiro do Pai das Paginas Filhas (esq, dir) e Escrevendo no Arquivo
+            page.setFatherPage(pos);
+            indexedFile.seek(indexedFile.length());
             page.writePage(indexedFile);
-
-            // Inserido a Posicao da Pagina Pai e Escrevendo a Pagina irma no Arquivo   
-            rightSisterPage.setFatherPage(fatherPage.getPositionIndexedFile());
+  
+            rightSisterPage.setFatherPage(pos);
+            rightSisterPage.setFirstPagePointer(keyProvided.getPointer());
+            if(rightSisterPage.getFirstPagePointer() != -1) { rightSisterPage.setLeaf(false); }
             rightSisterPage.writePage(indexedFile);
 
-            // Atualizando todas as informacoes da Pagina Pai
+            // Atualizando o Ponteiro para apontar para Pagina da Direita (irma)
+            keyProvided.setPointer(rightSisterPage.getPositionIndexedFile());
+
+            // Atualizando todas as informacoes da Pagina Pai e Escrevendo no Arquivo
             fatherPage.setLeaf(false);
             fatherPage.addKey(keyProvided);
             fatherPage.setFirstPagePointer(page.getPositionIndexedFile());
 
-            // ==== OTIMIZAR FAZENDO BUSCA BINARIA ====
-            // Procurando a Chave Promovida e atualizando o ponteiro para proxima chave
-            Key[] keys = fatherPage.getKeys();
-            for(int i = 0; i < fatherPage.getTotalKeysInPage(); i++) {
-                if(keys[i].getId() == keyProvided.getId()) {
-                    keys[i].setPointer(rightSisterPage.getPositionIndexedFile());
-                    i = fatherPage.getTotalKeysInPage();
-                }
-            }
-            fatherPage.setKeys(keys);
-            keys = null;
-
-            // Escrevendo Atualizacoes da Pagina Pai no Arquivo
             indexedFile.seek(pos);
             fatherPage.writePage(indexedFile);
-
-            // Atualiza o Ponteiro da Raiz da Arvore
-            root = fatherPage.getPositionIndexedFile();
         } else {
+            boolean recursionCheck = true;
+
             // Acessando os dados da Pagina Pai
             indexedFile.seek(page.getFatherPage());
             fatherPage.readPage(indexedFile);
 
             // Caso a Pagina Pai esteja cheia, Fragmentar Recursivamente
             if(fatherPage.getTotalKeysInPage() >= order-1) {
-                // fragementar
-            }
+                long grandfathersPosition = fatherPage.getFatherPage();
+                if(grandfathersPosition == -1) { grandfathersPosition = 0; }
 
-            keyProvided = page.getKeys()[n];
-            
-            for(int i = n+1; i < order-1; i++) {rightSisterPage.addKey(page.getKeys()[i]);}
-            
-            page.setTotalKeysInPage(n);
-            if(key.getId() < keyProvided.getId()) {
-                page.addKey(key);
-            } else {
-                rightSisterPage.addKey(key);
+                fragment(fatherPage, keyProvided, grandfathersPosition);
+                recursionCheck = false;
             }
             
             // Escrever a Pagina Irma no Final do Arquivo pois e uma Pagina Nova
@@ -125,7 +115,7 @@ public class TreeB {
             
             // Atualiza e Escreve o ponteiro da Chave Promovida (aponta para pagina irma)
             keyProvided.setPointer(rightSisterPage.getPositionIndexedFile());
-            fatherPage.addKey(keyProvided);
+            if(recursionCheck) { fatherPage.addKey(keyProvided); }
             
             // Escreve atualizacoes da Pagina Fragmentada
             indexedFile.seek(pos);
@@ -139,19 +129,26 @@ public class TreeB {
 
     private long searchPage(Page page, Key key) {
         Key keys[] = page.getKeys();
-        int n = page.getTotalKeysInPage()-1;
-        long pointer = 0;
+        int n = page.getTotalKeysInPage();
+        long pointer = -1;
 
-        if(n == 0) {
-            if(keys[n].getId() > key.getId()) {
+        if(n == 1) {
+            if(keys[0].getId() > key.getId()) {
                 pointer = page.getFirstPagePointer();
             } else {
-                pointer = keys[n].getPointer();
+                pointer = keys[0].getPointer();
             }
         } else {
-            for(int i = 0; i < n-1; i++) {
-                if(keys[i].getId() < key.getId() && keys[i + 1].getId() > key.getId()) {
+            for(int i = 1; i < n; i++) {
+                if(key.getId() > keys[i-1].getId() && key.getId() < keys[i].getId()) {
+                    pointer = keys[i-1].getPointer();
+                    i = n;
+                } else if (i == 1 && key.getId() < keys[i-1].getId()) {
+                    pointer = page.getFirstPagePointer();
+                    i = n;
+                } else if (i == n-1 && key.getId() > keys[i].getId()) {
                     pointer = keys[i].getPointer();
+                    i = n;
                 }
             }
         }
@@ -165,6 +162,7 @@ public class TreeB {
         while(eof()) {
             System.out.println();
             System.out.println("==============");
+            System.out.println("Posicao da Pagina: " + indexedFile.getFilePointer());
             System.out.println("Ponteiro Pai: " + indexedFile.readLong());
             System.out.println("Folha: " + indexedFile.readBoolean());
             int n = indexedFile.readInt();
