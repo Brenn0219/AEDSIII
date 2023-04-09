@@ -14,13 +14,6 @@ public class Main {
         }
 
         readFile.showTree();
-        // game = readFile.search(730);
-
-        // if(game != null) {
-        //     game.show();
-        // } else { System.out.println("Game nao encontrado"); }
-
-      
 
         readFile.deleteFile();
         sc.close();

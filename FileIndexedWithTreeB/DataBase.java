@@ -5,13 +5,13 @@ import java.io.RandomAccessFile;
 public class DataBase {
     private File readFileName;
     private RandomAccessFile readFile;
-    private TreeIndexedFile indexedFile;
+    private TreeB indexedFile;
     
     DataBase(String fileName) throws Exception {
         readFileName = new File(fileName);
         readFile = new RandomAccessFile(readFileName, "rw");
         readFile.seek(0);
-        indexedFile = new TreeIndexedFile();
+        indexedFile = new TreeB(8);
     }
     
     public void create(Games game) throws Exception {
@@ -28,7 +28,9 @@ public class DataBase {
         file.writeInt(bytes.length); 
         file.write(bytes); 
 
-        indexedFile.insertKey(game.getApp_id(), position);
+        Key key = new Key(game.getApp_id(), position);
+        indexedFile.insertKey(key);
+        key = null;
     }
 
     public Games read(int x) throws Exception {
@@ -306,17 +308,5 @@ public class DataBase {
 
     public void showTree() throws IOException {
         indexedFile.show();
-    }
-
-    public Games search(int id) throws Exception {
-        long position = indexedFile.search(id);
-        Games game = null;
-        
-        if(position != -1) {
-            game = readBytesForGames(readFile, position);
-        }
-
-        return game;
-    }
-      
+    }      
 }
