@@ -4,7 +4,7 @@ import java.util.Scanner;
 public class Main {
     
     public static void main(String[] args) throws Exception {
-        Scanner sc = new Scanner(new File("teste.csv"));
+        Scanner sc = new Scanner(new File("games.csv"));
         Games game = new Games();
         DataBase readFile = new DataBase("arquivo");
 

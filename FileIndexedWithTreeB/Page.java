@@ -30,6 +30,7 @@ public class Page {
 
     // Metodo de Ler uma Pagina
     public void readPage(RandomAccessFile file) throws IOException {
+        positionIndexedFile = file.getFilePointer();
         fatherPage = file.readLong();
         leaf = file.readBoolean();
         totalKeysInPage = file.readInt();
@@ -53,6 +54,8 @@ public class Page {
             file.writeLong(keys[i].getPositionFile());
             file.writeLong(keys[i].getPointer()); 
         }
+
+        updateChildrenPointer(file);
     }  
     
     // Metodo para Adicionar uma nova Chave no Array e no Arquivo e tambem Ordena o Array
@@ -85,18 +88,33 @@ public class Page {
         if(i < right) quick(i, right);
     }
 
+    private void updateChildrenPointer(RandomAccessFile file) throws IOException {
+
+        if(firstPagePointer != -1) {
+            file.seek(firstPagePointer);
+            file.writeLong(positionIndexedFile);
+        } 
+
+        for(int i = 0; i < totalKeysInPage; i++) {
+            if(keys[i].getPointer() != -1) {
+                file.seek(keys[i].getPointer());
+                file.writeLong(positionIndexedFile);
+            }
+        } 
+    }
+
     // Setters
-    public void setFatherPage(long fatherPage) { this.fatherPage = fatherPage; }
-    public void setFirstPagePointer(long firstPagePointer) { this.firstPagePointer = firstPagePointer; }
+    public void setFather(long fatherPage) { this.fatherPage = fatherPage; }
+    public void setFirstPointer(long firstPagePointer) { this.firstPagePointer = firstPagePointer; }
     public void setLeaf(boolean leaf) { this.leaf = leaf; }
-    public void setTotalKeysInPage(int totalKeysInPage) { this.totalKeysInPage = totalKeysInPage; }
+    public void setTotalKeys(int totalKeysInPage) { this.totalKeysInPage = totalKeysInPage; }
     public void setKeys(Key[] keys) { this.keys = keys; }
 
     // Getters
-    public int getTotalKeysInPage() { return totalKeysInPage; }
+    public int getTotalKeys() { return totalKeysInPage; }
     public boolean getLeaf() { return leaf; }
-    public long getPositionIndexedFile() { return positionIndexedFile; }
-    public long getFatherPage() { return fatherPage; }
+    public long getPosition() { return positionIndexedFile; }
+    public long getFather() { return fatherPage; }
     public Key[] getKeys() { return keys; }
-    public long getFirstPagePointer() { return firstPagePointer; }
+    public long getFirstPointer() { return firstPagePointer; }
 }
