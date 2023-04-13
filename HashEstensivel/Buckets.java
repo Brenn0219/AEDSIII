@@ -2,25 +2,31 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class Buckets {
-    private long position, positionTotalElements;
+    private long position;
     private int depthLocation, totalElements, totalBuckets;
 
     Buckets(int totalBuckets) {
         this.totalBuckets = totalBuckets;
-        position = positionTotalElements = -1;
+        position = -1;
         depthLocation = totalElements = 0;
     }
 
     Buckets(RandomAccessFile file) throws IOException {
         position = file.readLong();
         depthLocation = file.readInt();
-        positionTotalElements = file.getFilePointer();
         totalElements = file.readInt();
     }
 
-    public static void writeEmptyBucket(RandomAccessFile file, int n) throws IOException {
-        file.writeLong(-1);
-        file.writeInt(0);
+    public void writeBuckte(RandomAccessFile file) throws IOException {
+        position = file.getFilePointer();
+        file.writeLong(position);
+        file.writeInt(depthLocation);
+        file.writeInt(totalElements);
+    }
+
+    public static void writeEmptyBucket(RandomAccessFile file, int n, int depth) throws IOException {
+        file.writeLong(file.getFilePointer());
+        file.writeInt(depth);
         file.writeInt(0);
 
         for(int i = 0; i < n; i++) {
@@ -29,8 +35,10 @@ public class Buckets {
         }
     }
 
+    public void setDepthLocation(int depthLocation) { this.depthLocation = depthLocation; }
+    public void setTotalElements(int totalElements) { this.totalElements = totalElements; }
+
     public long getPosition() { return position; }
     public int getDepthLocation() { return depthLocation; }
     public int getTotalElements() { return totalElements; }
-    public long getPositionTotalElements() { return positionTotalElements; }
 }

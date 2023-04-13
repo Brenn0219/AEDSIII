@@ -32,37 +32,15 @@ public class DataBase {
         hash.insert(game.getApp_id(), position);
     }
 
-    public Games read(int x) throws Exception {
-        int registerSize, id;
-        boolean fileValue;
-        long position;
+    public Games read(int x) throws Exception {        
+        long position = hash.read(x);
         Games game = null;
 
-        readFile.seek(0);
-        readFile.skipBytes(4);
-
-        try {
-            while(readFile.getFilePointer() < readFile.length()) {
-                position = readFile.getFilePointer();
-                registerSize = readFile.readInt();
-                fileValue = readFile.readBoolean();
-                id = readFile.readInt();
-    
-                if(fileValue) {
-                    if(id == x) {
-                        game = readBytesForGames(readFile, position);
-                        break;
-                    } else {
-                        readFile.skipBytes(registerSize - 5);
-                    }
-                } else {
-                    readFile.skipBytes(registerSize - 5);
-                }
-            }  
-        } catch (IOException e) { // Caso o Registro nao existir no arquivo
-            System.err.println("Registro nao Encontrado");
-            return null;
-        } 
+        if(position != -1) {
+            game = readBytesForGames(readFile, position);
+        } else {
+            System.out.println("Registro nao Encontrado");
+        }
 
         return game;
     }
@@ -176,7 +154,7 @@ public class DataBase {
         }
     }
 
-    public static void show(RandomAccessFile file) throws Exception {
+    public void show(RandomAccessFile file) throws Exception {
         int n;
         file.seek(0);
        
@@ -202,6 +180,8 @@ public class DataBase {
             System.out.println();
         }
     }
+
+    public void showHash() throws IOException { hash.show(); }
 
     public void deleteFile() throws IOException { deleteFIle(file); }
 

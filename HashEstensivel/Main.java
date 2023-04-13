@@ -13,6 +13,11 @@ public class Main {
             readFile.create(game);                                                  
             // game.show();
         }
+        
+        game = readFile.read(730);
+        if(game != null) game.show();
+        
+        // readFile.showHash();
 
         readFile.deleteFile();
         sc.close();
