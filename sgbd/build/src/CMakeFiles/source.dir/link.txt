@@ -1,0 +1,2 @@
+C:\MinGW\bin\ar.exe qc libsource.a CMakeFiles/source.dir/app/date.c.obj CMakeFiles/source.dir/app/game.c.obj CMakeFiles/source.dir/app/gameprinting.c.obj
+C:\MinGW\bin\ranlib.exe libsource.a

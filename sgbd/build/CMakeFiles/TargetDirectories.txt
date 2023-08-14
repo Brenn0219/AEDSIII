@@ -1,0 +1,8 @@
+C:/Users/brenno/Documents/AEDSIII/sgbd/build/CMakeFiles/sgbd.dir
+C:/Users/brenno/Documents/AEDSIII/sgbd/build/CMakeFiles/edit_cache.dir
+C:/Users/brenno/Documents/AEDSIII/sgbd/build/CMakeFiles/rebuild_cache.dir
+C:/Users/brenno/Documents/AEDSIII/sgbd/build/src/CMakeFiles/source.dir
+C:/Users/brenno/Documents/AEDSIII/sgbd/build/src/CMakeFiles/edit_cache.dir
+C:/Users/brenno/Documents/AEDSIII/sgbd/build/src/CMakeFiles/rebuild_cache.dir
+C:/Users/brenno/Documents/AEDSIII/sgbd/build/include/CMakeFiles/edit_cache.dir
+C:/Users/brenno/Documents/AEDSIII/sgbd/build/include/CMakeFiles/rebuild_cache.dir
