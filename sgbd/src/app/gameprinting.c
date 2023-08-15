@@ -31,7 +31,7 @@ int formatPercentage(double conta) {
 }
 
 // Metodo de imprimir
-void show(Game *game) {
+void showGame(Game *game) {
     printf("%d %s %s/%d %s %d %.02f %d [", game->appId, game->name, getMonthName(game->date.month), game->date.year, game->owners, game->age, game->price, game->dlcs);
     for(int i = 0; i < game->sizeLanguages; i++) {
         if(i == game->sizeLanguages-1) {

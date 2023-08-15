@@ -4,6 +4,7 @@ add_library(source
     app/date.c
     app/game.c
     app/gameprinting.c
+    app/sequentialfile.c
     tmp/games.csv
 )
 

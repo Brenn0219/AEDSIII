@@ -9,4 +9,4 @@ void formatHours(int seconds);
 int formatPercentage(double conta);
 
 // Metodo de imprimir
-void show(Game *game);
+void showGame(Game *game);
