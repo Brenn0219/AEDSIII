@@ -201,6 +201,30 @@ app/gameprinting.c.s:
 	cd /d C:\Users\brenno\Documents\AEDSIII\sgbd\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\source.dir\build.make src/CMakeFiles/source.dir/app/gameprinting.c.s
 .PHONY : app/gameprinting.c.s
 
+app/sequentialfile.obj: app/sequentialfile.c.obj
+.PHONY : app/sequentialfile.obj
+
+# target to build an object file
+app/sequentialfile.c.obj:
+	cd /d C:\Users\brenno\Documents\AEDSIII\sgbd\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\source.dir\build.make src/CMakeFiles/source.dir/app/sequentialfile.c.obj
+.PHONY : app/sequentialfile.c.obj
+
+app/sequentialfile.i: app/sequentialfile.c.i
+.PHONY : app/sequentialfile.i
+
+# target to preprocess a source file
+app/sequentialfile.c.i:
+	cd /d C:\Users\brenno\Documents\AEDSIII\sgbd\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\source.dir\build.make src/CMakeFiles/source.dir/app/sequentialfile.c.i
+.PHONY : app/sequentialfile.c.i
+
+app/sequentialfile.s: app/sequentialfile.c.s
+.PHONY : app/sequentialfile.s
+
+# target to generate assembly for a file
+app/sequentialfile.c.s:
+	cd /d C:\Users\brenno\Documents\AEDSIII\sgbd\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\source.dir\build.make src/CMakeFiles/source.dir/app/sequentialfile.c.s
+.PHONY : app/sequentialfile.c.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -219,6 +243,9 @@ help:
 	@echo ... app/gameprinting.obj
 	@echo ... app/gameprinting.i
 	@echo ... app/gameprinting.s
+	@echo ... app/sequentialfile.obj
+	@echo ... app/sequentialfile.i
+	@echo ... app/sequentialfile.s
 .PHONY : help
 
 

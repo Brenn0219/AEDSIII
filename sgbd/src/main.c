@@ -8,26 +8,25 @@
 const int SIZE_LINE = 585; 
 
 int main() {
-	FILE *database = fopen("C:/Users/brenno/Documents/AEDSIII/sgbd/src/tmp/baseTest.csv", "r");   
+	FILE *database = fopen("C:/Users/brenno/Documents/AEDSIII/sgbd/src/tmp/baseTest.csv", "r");  
+    FILE *file = fopen("sequentialFile", "wb");
     char *line = (char *) malloc(sizeof(char) * SIZE_LINE);
 
     while(fgets(line, SIZE_LINE, database) != NULL) {
         Game *game = (Game *) malloc(sizeof(Game));
-        toRead(game, line);
-
-        FILE *file = fopen("sequentialFile", "wb");
+        toRead(game, line);        
         sf_create(file, game);
-        fclose(file);
-        
-        file = fopen("sequentialFile", "rb");
-        sf_showFile(file);
-        fclose(file);
-
         freeGame(game);
     }
 
-    fclose(database);
-    free(line);
+    fclose(file);
+    file = fopen("sequentialFile", "rb");
+    Game gameRead = sf_read(file, 730);
+    showGame(&gameRead);
+    freeGame(&gameRead);
 
+    fclose(database);
+    fclose(file);
+    free(line);
 	return 0;
 }

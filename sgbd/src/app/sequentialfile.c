@@ -4,18 +4,27 @@
 #include "game.h"
 #include "gameprinting.h"
 
-int gameSizeInByte(Game *game) {
-    int counter = sizeof(bool);
+int sf_gameSizeInByte(Game *game) {
+    int counter;
 
-    counter += 2 * sizeof(int) + strlen(game->name); 
+    counter = (4 * sizeof(bool)) + (12 * sizeof(int)) + (2 * sizeof(double)) + strlen(game->name) + strlen(game->owners) + strlen(game->website) + strlen(game->developers); 
+
+    for(int i = 0; i < game->sizeLanguages; i++) {
+        counter += sizeof(int) + strlen(game->languages[i]);
+    }
+
+    for(int i = 0; i < game->sizeGeneros; i++) {
+        counter += sizeof(int) + strlen(game->generos[i]);
+    }
 
     return counter;
 }
 
-void writeGameToFile(FILE *file, Game *game) {
-    int n;
+void sf_writeGameToFile(FILE *file, Game *game) {
+    int n, recordSize = sf_gameSizeInByte(game);
     bool status = true;
     
+    fwrite(&recordSize, sizeof(int), 1, file); // recordSize
     fwrite(&status, sizeof(bool), 1, file); // status 
     fwrite(&game->appId, sizeof(int), 1, file); // id
     n = strlen(game->name); 
@@ -57,24 +66,11 @@ void writeGameToFile(FILE *file, Game *game) {
     }
 }
 
-long sf_create(FILE *file, Game *game) {
-    long position;
-
-    fseek(file, 0, SEEK_END);
-    position = ftell(file);
-    writeGameToFile(file, game);
-
-    return position;
-}
-
-void sf_showFile(FILE *file) { 
+Game sf_readBytesForGame(FILE *file) {
     Game game;
     int n;
-    bool status;
-    
-    rewind(file);
-    fread(&status, sizeof(bool), 1, file);
-    fread(&game.appId, sizeof(int), 1, file);
+
+    fread(&game.appId, sizeof(int), 1, file); // id
     fread(&n, sizeof(int), 1, file); // size name 
     fread(&game.name, n, 1, file); // name
     fread(&game.date.month, sizeof(int), 1, file); // date month
@@ -86,10 +82,15 @@ void sf_showFile(FILE *file) {
     fread(&game.dlcs, sizeof(int), 1, file); // dlcs
 
     fread(&game.sizeLanguages, sizeof(int), 1, file); // total elements in languages(array)
+
+    printf("%d %s %s/%d %s %d %.2f %d [", game.appId, game.name, getMonthName(game.date.month), game.date.year, game.owners, game.age, game.price, game.dlcs);
+
     game.languages = malloc(sizeof(char *) * (game.sizeLanguages + 1));
     for(int i = 0; i < game.sizeLanguages; i++) {
         fread(&n, sizeof(int), 1, file); // size languages[i]
         fread(&game.languages[i], n, 1, file); // languages[i]
+
+        printf("%s, ", game.languages[i]);
     }
 
     fread(&n, sizeof(int), 1, file); // size website 
@@ -103,11 +104,76 @@ void sf_showFile(FILE *file) {
     fread(&game.developers, n, 1, file); // developers
     
     fread(&game.sizeGeneros, sizeof(int), 1, file); // total elements in languages(array)
-    game.generos = malloc(sizeof(char *) * (game.sizeLanguages + 1));
+
+    printf("] %s %s %s %s %.2f %d %s [", game.website, (game.windows ? "true" : "false"), (game.linxs ? "true" : "false"), (game.mac ? "true" : "false"), game.upvotes, game.avgPt, game.developers);
+
+    game.generos = malloc(sizeof(char *) * (game.sizeGeneros + 1));
     for(int i = 0; i < game.sizeGeneros; i++) {
         fread(&n, sizeof(int), 1, file); // size generos[i]
         fread(&game.generos[i], n, 1, file); // generos[i]
+
+        printf("%s, ", game.generos[i]);
     }
 
-    showGame(&game);
+    printf("]\n");
+
+    return game;
+}
+
+long sf_create(FILE *file, Game *game) {
+    long position;
+
+    fseek(file, 0, SEEK_END);
+    position = ftell(file);
+    sf_writeGameToFile(file, game);
+
+    return position;
+}
+
+Game sf_read(FILE *file, int x) {
+    int recordSize, id;
+    bool status;
+    long position;
+    Game game;
+
+    rewind(file);
+    printf("begnning position: %ld\n", ftell(file));
+    while (!feof(file)) {
+        fread(&recordSize, sizeof(int), 1, file);
+        fread(&status, sizeof(bool), 1, file);
+
+        if(status) {
+            fread(&id, sizeof(int), 1, file);
+
+            if(x == id) {
+                printf("before position: %ld\n", ftell(file));
+                fseek(file, -sizeof(int), SEEK_CUR);
+                printf("after position: %ld\n", ftell(file));
+                game = sf_readBytesForGame(file);
+                break;
+            } else {
+                fseek(file, (recordSize - (2 * sizeof(int) + sizeof(bool))), SEEK_CUR);
+            }
+        } else {
+            fseek(file, (recordSize - (sizeof(int) + sizeof(bool))), SEEK_CUR);
+        }
+    }
+    
+    return game;
+}
+
+void sf_showFile(FILE *file) { 
+    Game game;
+    int n, recordSize;
+    bool status;
+    
+    // rewind(file);
+    fseek(file, 0, SEEK_SET);
+    while(!feof(file)) {
+        fread(&recordSize, sizeof(int), 1, file);
+        fread(&status, sizeof(bool), 1, file);
+        game = sf_readBytesForGame(file);
+        showGame(&game);
+        freeGame(&game);
+    }
 }

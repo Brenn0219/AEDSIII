@@ -5,6 +5,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/source.dir/app/game.c.obj.d"
   "CMakeFiles/source.dir/app/gameprinting.c.obj"
   "CMakeFiles/source.dir/app/gameprinting.c.obj.d"
+  "CMakeFiles/source.dir/app/sequentialfile.c.obj"
+  "CMakeFiles/source.dir/app/sequentialfile.c.obj.d"
   "libsource.a"
   "libsource.pdb"
 )

@@ -11,6 +11,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/Users/brenno/Documents/AEDSIII/sgbd/src/app/date.c" "src/CMakeFiles/source.dir/app/date.c.obj" "gcc" "src/CMakeFiles/source.dir/app/date.c.obj.d"
   "C:/Users/brenno/Documents/AEDSIII/sgbd/src/app/game.c" "src/CMakeFiles/source.dir/app/game.c.obj" "gcc" "src/CMakeFiles/source.dir/app/game.c.obj.d"
   "C:/Users/brenno/Documents/AEDSIII/sgbd/src/app/gameprinting.c" "src/CMakeFiles/source.dir/app/gameprinting.c.obj" "gcc" "src/CMakeFiles/source.dir/app/gameprinting.c.obj.d"
+  "C:/Users/brenno/Documents/AEDSIII/sgbd/src/app/sequentialfile.c" "src/CMakeFiles/source.dir/app/sequentialfile.c.obj" "gcc" "src/CMakeFiles/source.dir/app/sequentialfile.c.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.
